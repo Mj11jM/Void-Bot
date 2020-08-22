@@ -30,9 +30,9 @@ logger.addHandler(handler)
 
 # read discord token
 def read_dToke():
-    with open("dToke.config", "r") as f:
-        lines = f.readlines()
-        return lines[0].strip()
+    configJson = open("./config.json")
+    config = json.load(configJson)
+    return config["token"]
 
 
 def prefixes(client, message):

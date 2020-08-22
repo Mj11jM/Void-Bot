@@ -102,6 +102,7 @@ class Owner(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command(hidden=True)
+    @commands.is_owner()
     async def allExt(self, ctx):
         load = cmds.utils.loader.Loader(self)
         loader = load.pathWalkerLoader('./cmds')
@@ -130,7 +131,7 @@ class Owner(commands.Cog):
         presDB.find_one_and_update(allList, {'$push': {"rPres": allAsList}})
         currentDB = presDB.find_one(allList)
         await ctx.send("success", delete_after=5)
-    
+
 
     @tasks.loop(minutes=5.0)
     async def presCycle(self):
@@ -181,6 +182,17 @@ class Owner(commands.Cog):
                     return await ctx.channel.send('Could not download file...')
                 toBytes = await resp.read()
                 await self.bot.user.edit(avatar=toBytes)
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def listRoles(self, ctx):
+        allRoles = ctx.guild.roles
+        print(allRoles)
+        list = ''
+        for r in allRoles:
+            list += r.name + '\n'
+        embed = discord.Embed(description=list, color=0x00aa00)
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Owner(bot))

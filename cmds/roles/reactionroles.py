@@ -48,8 +48,8 @@ class ReactionRoles(commands.Cog):
                 i = discord.utils.get(allRoles, name=b)
                 if i != None:
                     rID = i.id
-                    roles.append(rID) #role id   
-                    await asyncio.sleep(0.5)             
+                    roles.append(rID) #role id
+                    await asyncio.sleep(0.5)
             else:                    
                 roles.append(b) #emote first
                 roles.append(a) #role second

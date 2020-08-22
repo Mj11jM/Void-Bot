@@ -250,16 +250,21 @@ class Events(commands.Cog):
         giveFound = giveDB.find_one(search)
         if startFound != None:
             emoteFound = startFound['roles']
+            equaled = False
             for d in emoteFound:
                 if d[0][0:] == emote:
                     roleID = d[2]
                     findRole = guild.get_role(roleID)
-                    member= payload.member
+                    member = payload.member
                     await member.add_roles(findRole)
+                    return
                 else:
-                    member= payload.member
-                    msgFetch = await chanID.fetch_message(msgID)
-                    await msgFetch.remove_reaction(emote, member)
+                    equaled = True
+                    continue
+            if equaled:
+                member = payload.member
+                msgFetch = await chanID.fetch_message(msgID)
+                await msgFetch.remove_reaction(emote, member)
         elif emote == '🔁':
             msgFetch = await chanID.fetch_message(msgID)
             msgContent = str(msgFetch.content)
@@ -299,10 +304,10 @@ class Events(commands.Cog):
                     return
                 else:
                     giveDB.find_one_and_update(search, {'$push': {"reactions": payload.member.id}})
-        elif giveFound != None:
-            member= payload.member
-            msgFetch = await chanID.fetch_message(msgID)
-            await msgFetch.remove_reaction(emote, member)
+            elif giveFound != None:
+                member= payload.member
+                msgFetch = await chanID.fetch_message(msgID)
+                await msgFetch.remove_reaction(emote, member)
 
 
     @commands.Cog.listener()
