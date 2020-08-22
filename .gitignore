@@ -1,0 +1,11 @@
+discord.log
+__pycache__/*
+cmds/__pycache__/*
+dToke.config
+cmds/admin/__pycache__/
+prefixes.json
+helperMenus/__pycache__/
+cmds/*/__pycache__/
+*/__pycache__/
+venv/*
+.idea/*
