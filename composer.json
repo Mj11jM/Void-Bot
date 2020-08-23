@@ -1,0 +1,16 @@
+{
+    "name": "mj11jm/void-bot-git",
+    "description": "PHP version of the unfinished VoidBot by Mj11jM",
+    "type": "project",
+    "require": {
+        "team-reflex/discord-php": "dev-develop"
+    },
+    "autoload": {
+        "psr-4": {
+            "VoidBot\\": "bot"
+        }
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.1"
+    }
+}
