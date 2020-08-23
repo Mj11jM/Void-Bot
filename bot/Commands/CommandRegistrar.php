@@ -7,9 +7,11 @@ use VoidBot\Discord;
 
 class CommandRegistrar
 {
-    function abc() {
-        $some = Discord::getInstance();
-        dump($some);
+
+    public function instance() {
+
+        $instance = Discord::getInstance();
+        return $instance;
     }
 
 }
