@@ -19,9 +19,9 @@ class Test
     }
 
     public function command($message, $discord): void{
-            $date = Carbon::now('UTC');
-            $diff = $date->diffInMilliseconds($message->timestamp);
-            $message->channel->sendMessage("Pong in {$diff}ms!");
+        $date = Carbon::now('UTC');
+        $diff = $date->diffInMilliseconds($message->timestamp);
+        $message->channel->sendMessage("Pong in {$diff}ms!");
     }
 
 

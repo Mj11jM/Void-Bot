@@ -22,11 +22,12 @@ class MessageHandler
         }
 
         $args = explode(' ', $message->content);
+        $commandName = array_shift($args);
 
-        $command = substr($args[0], strlen($prefix));
+        $command = substr($commandName, strlen($prefix));
         if (isset($this->commandNormal[$command])) {
             $execute = call_user_func("{$this->commandNormal[$command]}::getInstance");
-            $execute->command($message, $discord);
+            $execute->command($message, $discord, $args);
         }
     }
 
