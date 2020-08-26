@@ -1,18 +1,18 @@
 <?php
 
 
-namespace VoidBot\Commands\Admin;
+namespace VoidBot\Commands\Misc;
 
 use Carbon\Carbon;
 
-class Test
+class Ping
 {
     private static $instance = null;
 
     public static function getInstance() {
         if(!self::$instance)
         {
-            self::$instance = new Test();
+            self::$instance = new Ping();
         }
 
         return self::$instance;
