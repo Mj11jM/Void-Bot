@@ -9,7 +9,7 @@ use VoidBot\Commands\Admin\Test;
 class MessageHandler
 {
     private static $instance = null;
-
+    //This is where I will declare normal/global command. There will be an admin command array later
     private $commandNormal = [
         'ping' => Test::class
     ];
