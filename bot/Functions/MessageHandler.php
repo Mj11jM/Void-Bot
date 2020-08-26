@@ -4,6 +4,7 @@
 namespace VoidBot\Functions;
 
 
+use VoidBot\Commands\Bot\SetPrefix;
 use VoidBot\Commands\Misc\Ping;
 
 class MessageHandler
@@ -11,7 +12,8 @@ class MessageHandler
     private static $instance = null;
     //This is where I will declare normal/global command. There will be an admin command array later
     private $commandNormal = [
-        'ping' => Ping::class
+        'ping' => Ping::class,
+        'setprefix' => SetPrefix::class
     ];
 
 
