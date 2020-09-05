@@ -12,6 +12,8 @@ $decode = json_decode($configFile, true);
 
 $discord = new Discord([
     'token' => $decode['token'],
+    'storeMessages' => true,
+    'loadAllMembers' => true,
 ]);
 VoidBot\Discord::setInstance($discord);
 
@@ -24,10 +26,30 @@ $discord->on('ready', function ($discord) {
         $mongo = VoidBot\MongoInstance::getInstance();
         $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
         $guildPrefix = $prefixDB->findOne(['guild_id' => $message->channel->guild->id])->prefix;
+
+        //Checking for Admin Permissions
+        if ($message->channel->guild->owner_id === $message->author->id){
+            $admin = true;
+        } else {
+            $admin = false;
+            foreach ($message->author->roles as $role) {
+                if ($role->permissions->administrator){
+                    $admin = true;
+                }
+            }
+        }
+
+        //Check for if the bot owner is the one sending the message.
+        $discord->application->owner->id === $message->author->id? $owner = true: $owner = false;
+
         //Check if the prefix is in the message at the beginning of the message, if so. Pass it on to the command handler
         if (strpos($message->content, $guildPrefix) === 0){
-            MessageHandler::getInstance()->getCommand($message, $discord, $guildPrefix);
+            MessageHandler::getInstance()->getCommand($message, $discord, $guildPrefix, $admin, $owner);
         }
+    });
+
+    $discord->on('MESSAGE_REACTION_ADD', function ($message, $discord) {
+        //todo
     });
 });
 
