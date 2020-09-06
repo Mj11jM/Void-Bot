@@ -22,8 +22,6 @@ class SetPrefix
         $mongo = MongoInstance::getInstance();
         $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
         $newPrefix = $args[0];
-        dump($newPrefix);
-        dump($prefixDB);
         $prefixDB->findOneAndUpdate(['guild_id' => $message->channel->guild->id], ['$set' => ['prefix' => $newPrefix]]);
         $message->channel->sendMessage("Prefix has been changed to $newPrefix");
     }
