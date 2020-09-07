@@ -6,6 +6,7 @@ namespace VoidBot\Functions;
 
 use VoidBot\Commands\Bot\SetPrefix;
 use VoidBot\Commands\Misc\Ping;
+use VoidBot\Commands\Roles\SelfRole;
 
 class MessageHandler
 {
@@ -18,7 +19,7 @@ class MessageHandler
 
     //This is where commands requiring specific permissions are made
     private $commandSpecial = [
-
+        'selfrole' => SelfRole::class,
     ];
 
     //This is where admin commands are made
@@ -37,7 +38,7 @@ class MessageHandler
         $args = explode(' ', $message->content);
         $parser = ArgumentParser::getInstance();
         $commandName = array_shift($args);
-        $command = substr($commandName, strlen($context['prefix']));
+        $command = strtolower(substr($commandName, strlen($context['prefix'])));
         $context['args'] = $parser->parser($args);
 
         //This filters out any command for other bots that may start with the same prefix, it will not

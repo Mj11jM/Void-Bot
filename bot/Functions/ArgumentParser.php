@@ -25,10 +25,14 @@ class ArgumentParser
         foreach ($argument as $arg) {
             switch ($arg) {
                 case strpos($arg, "<@") === 0:
-                    $newArgs['ids'][] = $arg;
+                    if (strpos($arg, "<@&") === 0) {
+                        $newArgs['role_mentions'][] = $arg;
+                    }else {
+                        $newArgs['ids'][] = $arg;
+                    }
                     break;
                 default:
-                    $newArgs['extraArguments'][] = $arg;
+                    $newArgs['args'][] = $arg;
             }
         }
         return $newArgs;

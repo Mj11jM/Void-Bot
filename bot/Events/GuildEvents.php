@@ -4,6 +4,8 @@
 namespace VoidBot\Events;
 
 
+use VoidBot\MongoInstance;
+
 class GuildEvents
 {
     private static $instance = null;
@@ -20,8 +22,11 @@ class GuildEvents
     public function events($discord): void{
 
         //Proper Guild Events
-        $discord->on("GUILD_CREATE", function () {
+        $discord->on("GUILD_CREATE", function ($guild, $discord) {
             //todo
+            $mongo = MongoInstance::getInstance();
+            $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
+            $prefixDB->insertOne(["guild_id" => $guild->id], ["prefix" => '-']);
         });
         $discord->on("GUILD_UPDATE", function () {
             //todo

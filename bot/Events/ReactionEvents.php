@@ -4,6 +4,8 @@
 namespace VoidBot\Events;
 
 
+use Discord\Parts\Channel\Channel;
+use Discord\Parts\Channel\Message;
 use VoidBot\Discord;
 
 class ReactionEvents
@@ -20,8 +22,10 @@ class ReactionEvents
     }
 
     public function events ($discord): void{
-        $discord->on('MESSAGE_REACTION_ADD', function ($message, $discord) {
+        $discord->on('MESSAGE_REACTION_ADD', function ($emoji, $discord) {
+            if ($emoji->emoji->name === "🔁") {
 
+            }
         });
         $discord->on('MESSAGE_REACTION_REMOVE', function ($message, $discord) {
 

@@ -4,6 +4,7 @@
 namespace VoidBot\Functions;
 
 
+use Carbon\Carbon;
 use VoidBot\MongoInstance;
 
 class ContextCreator
@@ -44,6 +45,25 @@ class ContextCreator
         $context['guild'] = $message->channel->guild;
         $context['channel'] = $message->channel;
         $context['user'] = $message->author;
+
+        $context['guild_id'] = $message->channel->guild->id;
+        $context['channel_id'] = $message->channel->id;
+        $context['user_id'] = $message->author->id;
+
+
+        $context['embed'] = [
+            'type' => [
+                'perm_error' => [
+                    "color" => $context['color']['red'],
+                    "author" => [
+                        "name" => "Insufficient Permissions"
+                    ],
+                    "footer" => [
+                        'text' => Carbon::now()->toDateTimeString()
+        ]
+                ]
+            ]
+        ];
 
         return $context;
     }
