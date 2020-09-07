@@ -4,6 +4,8 @@
 namespace VoidBot\Commands\Misc;
 
 use Carbon\Carbon;
+use Discord\Parts\Channel\Channel;
+use Discord\Parts\Embed\Embed;
 
 class Ping
 {
@@ -18,10 +20,16 @@ class Ping
         return self::$instance;
     }
 
-    public function command($message, $discord): void{
+    public function command($message, $discord, $context): void{
         $date = Carbon::now('UTC');
         $diff = $date->diffInMilliseconds($message->timestamp);
-        $message->channel->sendMessage("Pong in {$diff}ms!");
+        $embed = $discord->factory(Embed::class, [
+            'color' => $context['color']['green'],
+            'author' => [
+                'name' => 'Voidbot Ping test'],
+            "title" => "Pong in {$diff}ms!",
+        ]);
+        $message->channel->sendMessage('', false, $embed);
     }
 
 

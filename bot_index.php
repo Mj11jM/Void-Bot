@@ -2,7 +2,7 @@
 
 
 use Discord\Discord;
-use VoidBot\Commands\CommandRegistrar;
+use VoidBot\Functions\ContextCreator;
 use VoidBot\Functions\MessageHandler;
 
 include './vendor/autoload.php';
@@ -14,6 +14,7 @@ $discord = new Discord([
     'token' => $decode['token'],
     'storeMessages' => true,
     'loadAllMembers' => true,
+    'pmChannels' => true,
 ]);
 VoidBot\Discord::setInstance($discord);
 
@@ -22,52 +23,24 @@ $discord->on('ready', function ($discord) {
     echo "{$discord->username} is now online in {$guildCount} guilds!" . PHP_EOL;
 
     $discord->on('MESSAGE_CREATE', function ($message, $discord) {
-        //The next 3 lines gets the specific guild's prefix from the DB
-        $mongo = VoidBot\MongoInstance::getInstance();
-        $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
-        $guildPrefix = $prefixDB->findOne(['guild_id' => $message->channel->guild->id])->prefix;
-
-        //Checking for Permissions
-        $permissions = [
-            'admin' => false,
-            'owner' => false,
-            'manage_channels' => false,
-            'kick_members' => false,
-            'ban_members' => false,
-            'manage_roles' => false,
-        ];
-        //If the guild owner is the one running the command, set them as admin and ignore the rest of the role checks
-        if ($message->channel->guild->owner_id === $message->author->id){
-            $permissions['admin'] = true;
-        } else {
-            //Since the user isn't the owner, check over each role they have for the permissions we might require
-            foreach ($message->author->roles as $role) {
-                if ($role->permissions->administrator){
-                    $permissions['admin'] = true;
-                }
-                if ($role->permissions->manage_channels){
-                    $permissions['manage_channels'] = true;
-                }
-                if ($role->permissions->manage_roles){
-                    $permissions['manage_roles'] = true;
-                }
-                if ($role->permissions->kick_members){
-                    $permissions['kick_members'] = true;
-                }
-                if ($role->permissions->ban_members){
-                    $permissions['ban_members'] = true;
-                }
+        if ($message->author->bot || $message->author->id === $discord->user->id) {
+            return;
+        }
+        //Check for a message in DMs, if it is and the message isn't from the bot. Reply
+        if ($message->channel->is_private) {
+            if ($message->author->id === $discord->user->id){
+                return;
+            } else {
+                return $message->channel->sendMessage("DM Commands are currently disabled.");
             }
         }
 
-        //Check for if the bot owner is the one sending the message.
-        if($discord->application->owner->id === $message->author->id) {
-            $permissions['owner'] = true;
-        }
+        //Create easily accessible context data and send it through to the commands.
+        $context = ContextCreator::getInstance()->contextCreation($message, $discord);
 
         //Check if the prefix is in the message at the beginning of the message, if so. Pass it on to the command handler
-        if (strpos($message->content, $guildPrefix) === 0){
-            MessageHandler::getInstance()->getCommand($message, $discord, $guildPrefix, $permissions);
+        if (strpos($message->content, $context['prefix']) === 0){
+            MessageHandler::getInstance()->getCommand($message, $discord, $context);
         }
     });
 

@@ -4,20 +4,12 @@
 namespace VoidBot\Events;
 
 
+use Discord\Parts\Guild\Guild;
+use VoidBot\Discord;
+
 class EventsCore
 {
     private static $instance = null;
-    private $eventList = [
-        ReactionEvents::class,
-        MessageEvents::class
-    ];
-
-    public function eventStarter () {
-        foreach ($this->eventList as $events) {
-            $event = call_user_func("{$events}::getInstance");
-            $event->events();
-        }
-    }
 
     public static function getInstance() {
         if(!self::$instance)
@@ -27,4 +19,28 @@ class EventsCore
 
         return self::$instance;
     }
+
+    private $discord;
+
+    private function __construct()
+    {
+        $this->discord = Discord::getInstance();
+    }
+
+    private $eventList = [
+        ChannelEvents::class,
+        GuildEvents::class,
+        MessageEvents::class,
+        ReactionEvents::class,
+        RoleEvents::class,
+    ];
+
+    public function eventStarter () {
+        foreach ($this->eventList as $events) {
+            $event = call_user_func("{$events}::getInstance");
+            $event->events($this->discord);
+        }
+    }
+
+
 }
