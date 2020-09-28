@@ -39,8 +39,7 @@ class ContextCreator
         $context['prefix'] = $prefixDB->findOne(['guild_id' => $message->channel->guild->id])->prefix;
 
         //Set all permissions into an easily accessible section
-        $permission = \VoidBot\Functions\PermissionChecker::getInstance();
-        $context['permissions'] = $permission->permissions($message, $discord);
+        $context['permissions'] = $message->author->getPermissions();
 
         $context['guild'] = $message->channel->guild;
         $context['channel'] = $message->channel;
@@ -60,7 +59,7 @@ class ContextCreator
                     ],
                     "footer" => [
                         'text' => Carbon::now()->toDateTimeString()
-        ]
+                    ]
                 ]
             ]
         ];

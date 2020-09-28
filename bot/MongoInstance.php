@@ -15,7 +15,9 @@ class MongoInstance
     private function __construct() {
         try
         {
-            $this->connection = new MongoDB\Client("mongodb://localhost:27017");
+            $configFile = file_get_contents('config.json');
+            $config = json_decode($configFile, true);
+            $this->connection = new MongoDB\Client($config['mongoDB_address']);
         }
         catch (MongoDB\Driver\Exception\ConnectionTimeoutException $e)
         {

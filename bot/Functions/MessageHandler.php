@@ -4,8 +4,11 @@
 namespace VoidBot\Functions;
 
 
+use Carbon\Carbon;
 use VoidBot\Commands\Bot\SetPrefix;
+use VoidBot\Commands\Misc\Help;
 use VoidBot\Commands\Misc\Ping;
+use VoidBot\Commands\Roles\ReactionRole;
 use VoidBot\Commands\Roles\SelfRole;
 
 class MessageHandler
@@ -15,11 +18,15 @@ class MessageHandler
     //This is where commands everyone can use are made
     private $commandNormal = [
         'ping' => Ping::class,
+        'help' => Help::class,
     ];
 
     //This is where commands requiring specific permissions are made
     private $commandSpecial = [
         'selfrole' => SelfRole::class,
+        'rero' => ReactionRole::class,
+        'reactionrole' => ReactionRole::class,
+        'reactionroles' => ReactionRole::class,
     ];
 
     //This is where admin commands are made
@@ -53,12 +60,31 @@ class MessageHandler
             $execute->command($message, $discord, $context);
 
         } elseif (isset($this->commandSpecial[$command])) {
+            $allowed = false;
             $execute = call_user_func("{$this->commandSpecial[$command]}::getInstance");
-            $execute->command($message, $discord, $context);
+            //Compare required to actual roles/permissions
+            foreach ($execute->requiredRoles as $role) {
+                if ($context['permissions'][$role]){
+                    $allowed = true;
+                }
+            }
+
+            if ($allowed) {
+                $execute->command($message, $discord, $context);
+            } else {
+                $embed = $context['embed']['type']['perm_error'];
+                $embed['description'] = "You don't have sufficient permissions to use this command, you need at least one of these permissions:\n";
+                foreach ($execute->requiredRoles as $role) {
+                    $embed['description'] .= $role . PHP_EOL;
+                }
+                $context['channel']->sendMessage("", false, $embed);
+            }
 
         } elseif (isset($this->commandAdmin[$command])) {
-            if (!$context['permissions']['admin']) {
-                return $message->channel->sendMessage("You require administrator to run this command!");
+            if (!$context['permissions']['administrator']) {
+                $embed = $context['embed']['type']['perm_error'];
+                $embed['description'] = " You require administrator to run this command!";
+                return $message->channel->sendMessage("", false, $embed);
             }
             $execute = call_user_func("{$this->commandAdmin[$command]}::getInstance");
             $execute->command($message, $discord, $context);
@@ -71,7 +97,17 @@ class MessageHandler
             $execute->command($message, $discord, $context);
 
         } else {
-            $message->channel->sendMessage("Command was not found, please check your spelling and try again.");
+            $embed = [
+                "color" => $context['color']['red'],
+                "author" => [
+                    "name" => "Command not found"
+                ],
+                "description" => "Command \"**$command**\" was not found, please check your spelling and try again.",
+                "footer" => [
+                    'text' => Carbon::now()->toDateTimeString()
+                ]
+            ];
+            $message->channel->sendMessage("", false, $embed);
         }
     }
 

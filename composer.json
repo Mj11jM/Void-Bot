@@ -3,8 +3,9 @@
     "description": "PHP version of the unfinished VoidBot by Mj11jM",
     "type": "project",
     "require": {
-        "team-reflex/discord-php": "dev-develop",
-        "mongodb/mongodb": "^1.7"
+        "team-reflex/discord-php": "^5.0",
+        "mongodb/mongodb": "^1.7",
+        "p3k/emoji-detector": "^0.2.1"
     },
     "autoload": {
         "psr-4": {

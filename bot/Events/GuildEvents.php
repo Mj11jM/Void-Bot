@@ -9,6 +9,7 @@ use VoidBot\MongoInstance;
 class GuildEvents
 {
     private static $instance = null;
+    private $mongoDB;
 
     public static function getInstance() {
         if(!self::$instance)
@@ -19,20 +20,24 @@ class GuildEvents
         return self::$instance;
     }
 
+    private function __construct()
+    {
+        $this->mongoDB = MongoInstance::getInstance();
+    }
+
     public function events($discord): void{
 
         //Proper Guild Events
         $discord->on("GUILD_CREATE", function ($guild, $discord) {
-            //todo
-            $mongo = MongoInstance::getInstance();
-            $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
-            $prefixDB->insertOne(["guild_id" => $guild->id], ["prefix" => '-']);
+            $prefixDB = $this->mongoDB->getDB()->voidbot->guildPrefixes;
+            $prefixDB->insertOne(["guild_id" => $guild->id, "prefix" => '-']);
         });
         $discord->on("GUILD_UPDATE", function () {
             //todo
         });
-        $discord->on("GUILD_DELETE", function () {
-            //todo
+        $discord->on("GUILD_DELETE", function ($guild, $discord) {
+            $prefixDB = $this->mongoDB->getDB()->voidbot->guildPrefixes;
+            $prefixDB->deleteOne(["guild_id" => $guild->id, "prefix" => '-']);
         });
 
         //Guild Member Events

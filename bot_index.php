@@ -26,6 +26,7 @@ $discord->on('ready', function ($discord) {
         if ($message->author->bot || $message->author->id === $discord->user->id) {
             return;
         }
+
         //Check for a message in DMs, if it is and the message isn't from the bot. Reply
         if ($message->channel->is_private) {
             if ($message->author->id === $discord->user->id){
@@ -43,6 +44,11 @@ $discord->on('ready', function ($discord) {
             MessageHandler::getInstance()->getCommand($message, $discord, $context);
         }
     });
+
+//    Commented out but kept for future
+//    $discord->getLoop()->addPeriodicTimer(0.1, function() {
+//
+//    });
 
     $events = VoidBot\Events\EventsCore::getInstance();
     $events->eventStarter();

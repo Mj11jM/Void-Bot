@@ -1,0 +1,4 @@
+{
+  "token": "Your-Bot-Token-Here",
+  "mongoDB_address": "mongodb://your-mongodb-address-here"
+}
