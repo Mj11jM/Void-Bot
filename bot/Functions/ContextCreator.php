@@ -5,7 +5,7 @@ namespace VoidBot\Functions;
 
 
 use Carbon\Carbon;
-use VoidBot\MongoInstance;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class ContextCreator
 {
@@ -20,7 +20,7 @@ class ContextCreator
         return self::$instance;
     }
 
-    public function contextCreation ($message, $discord) {
+    public function contextCreation ($message, $discord, $event = false) {
         $context = [
             "color" => [
                 'red' => '11143690',
@@ -33,21 +33,20 @@ class ContextCreator
             ]
         ];
 
-        //The next 3 lines gets the specific guild's prefix from the DB
-        $mongo = MongoInstance::getInstance();
-        $prefixDB = $mongo->getDB()->voidbot->guildPrefixes;
-        $context['prefix'] = $prefixDB->findOne(['guild_id' => $message->channel->guild->id])->prefix;
+        if (!$event) {
+            $context['prefix'] = DB::table('guilds')->where('guild_id', '=', $message->author->guild_id)->first('prefix')->prefix;
 
-        //Set all permissions into an easily accessible section
-        $context['permissions'] = $message->author->getPermissions();
+            //Set all permissions into an easily accessible section
+            $context['permissions'] = $message->author->getPermissions();
 
-        $context['guild'] = $message->channel->guild;
-        $context['channel'] = $message->channel;
-        $context['user'] = $message->author;
+            $context['guild'] = $message->channel->guild;
+            $context['channel'] = $message->channel;
+            $context['user'] = $message->author;
 
-        $context['guild_id'] = $message->channel->guild->id;
-        $context['channel_id'] = $message->channel->id;
-        $context['user_id'] = $message->author->id;
+            $context['guild_id'] = $message->channel->guild->id;
+            $context['channel_id'] = $message->channel->id;
+            $context['user_id'] = $message->author->id;
+        }
 
 
         $context['embed'] = [
@@ -60,7 +59,26 @@ class ContextCreator
                     "footer" => [
                         'text' => Carbon::now()->toDateTimeString()
                     ]
+                ],
+                'command_error' => [
+                    "color" => $context['color']['red'],
+                    "author" => [
+                        "name" => "Error"
+                    ],
+                    "footer" => [
+                        'text' => Carbon::now()->toDateTimeString()
+                    ]
+                ],
+                'command_success' => [
+                    "color" => $context['color']['green'],
+                    "author" => [
+                        "name" => "Success!"
+                    ],
+                    "footer" => [
+                        'text' => Carbon::now()->toDateTimeString()
+                    ]
                 ]
+
             ]
         ];
 

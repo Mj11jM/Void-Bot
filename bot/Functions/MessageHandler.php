@@ -5,6 +5,7 @@ namespace VoidBot\Functions;
 
 
 use Carbon\Carbon;
+use VoidBot\Commands\Admin\ServerLog;
 use VoidBot\Commands\Bot\SetPrefix;
 use VoidBot\Commands\Misc\Help;
 use VoidBot\Commands\Misc\Ping;
@@ -31,7 +32,8 @@ class MessageHandler
 
     //This is where admin commands are made
     private $commandAdmin = [
-        'setprefix' => SetPrefix::class
+        'setprefix' => SetPrefix::class,
+        'log' => ServerLog::class
     ];
 
     //This is where owner only commands are made

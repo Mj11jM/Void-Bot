@@ -1,9 +1,11 @@
+#!/usr/bin/env php
 <?php
 
 
 use Discord\Discord;
 use VoidBot\Functions\ContextCreator;
 use VoidBot\Functions\MessageHandler;
+use VoidBot\MySQLInstance;
 
 include './vendor/autoload.php';
 
@@ -15,12 +17,16 @@ $discord = new Discord([
     'storeMessages' => true,
     'loadAllMembers' => true,
     'pmChannels' => true,
+//    'loggerLevel' => 'debug',
 ]);
 VoidBot\Discord::setInstance($discord);
+MySQLInstance::getInstance();
 
 $discord->on('ready', function ($discord) {
     $guildCount =  count($discord->guilds);
     echo "{$discord->username} is now online in {$guildCount} guilds!" . PHP_EOL;
+
+    $discord->updatePresence();
 
     $discord->on('MESSAGE_CREATE', function ($message, $discord) {
         if ($message->author->bot || $message->author->id === $discord->user->id) {
@@ -50,8 +56,8 @@ $discord->on('ready', function ($discord) {
 //
 //    });
 
-    $events = VoidBot\Events\EventsCore::getInstance();
-    $events->eventStarter();
+    VoidBot\Events\EventsCore::getInstance()->eventStarter();
+
 
 });
 

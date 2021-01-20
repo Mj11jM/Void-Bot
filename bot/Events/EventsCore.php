@@ -32,7 +32,6 @@ class EventsCore
         GuildEvents::class,
         MessageEvents::class,
         ReactionEvents::class,
-        RoleEvents::class,
     ];
 
     public function eventStarter () {
