@@ -30,7 +30,7 @@ $discord->on('ready', function ($discord) {
     $discord->updatePresence();
 
     $discord->on('MESSAGE_CREATE', function (Message $message, $discord) {
-        if ($message->author->bot || $message->author->id === $discord->user->id) {
+        if ($message->author->user->bot || $message->author->id === $discord->user->id) {
             return;
         }
 
