@@ -29,8 +29,8 @@ class MessageEvents
             if (!($message instanceof Message)) {
                 return;
             }
-            $activeLog = LogFinder::findEventLog($message->author->guild_id, 'message_delete');
-            if (!$activeLog) {
+            $activeLog = LogFinder::findEventLog($message->author->guild_id, ['message_delete']);
+            if (!$activeLog || $message->author->bot) {
                 return;
             }
             $context = ContextCreator::getInstance()->contextCreation(null, $discord, true);
@@ -39,6 +39,7 @@ class MessageEvents
                 $embed['author'] = [
                     "name" => "Message Deleted"
                 ];
+                $embed['description'] = "User **{$message->author->username}** `{$message->author->id}` deleted a message";
                 $embed['fields'] = [
                     0 => [
                         'name'=> "Deleted Message",
@@ -49,10 +50,10 @@ class MessageEvents
             }
         });
         $discord->on('MESSAGE_UPDATE', function (Message $newMessage, Discord $discord, $oldMessage) {
-            if ($newMessage->author->id === $discord->id || is_null($oldMessage)) {
+            if (is_null($oldMessage) || $newMessage->author->bot || (!empty($newMessage->embeds->toArray()) && empty($newMessage->content))) {
                 return;
             }
-            $activeLog = LogFinder::findEventLog($newMessage->author->guild_id, 'message_update');
+            $activeLog = LogFinder::findEventLog($newMessage->author->guild_id, ['message_update']);
             if (!$activeLog) {
                 return;
             }

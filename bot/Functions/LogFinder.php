@@ -14,6 +14,9 @@ class LogFinder
         foreach ($event as $ev) {
             $query[] = [$ev, '=', 1];
         }
+        if (count($query) === 1) {
+            $query[] = [$event, '=', 1];
+        }
         $logFound = DB::table('log_channels')->where($query)->get();
         if (!empty($logFound[0])) {
             return $logFound;

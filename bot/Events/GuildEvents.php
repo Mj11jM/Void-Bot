@@ -98,8 +98,8 @@ class GuildEvents
 
             $oldRole = $old->roles->toArray();
             $newRole = $new->roles->toArray();
-            $newRoles = empty(array_keys(array_diff($newRole, $oldRole))[0])? null : array_keys(array_diff($newRole, $oldRole))[0];
-            $removedRoles = empty(array_keys(array_diff($oldRole, $newRole))[0])? null : array_keys(array_diff($oldRole, $newRole))[0];
+            $newRoles = empty(array_keys(array_diff($newRole, $oldRole))[0])? null : array_keys(array_diff($newRole, $oldRole));
+            $removedRoles = empty(array_keys(array_diff($oldRole, $newRole))[0])? null : array_keys(array_diff($oldRole, $newRole));
 
             $added = !is_null($newRoles);
             $removed = !is_null($removedRoles);
@@ -125,7 +125,9 @@ class GuildEvents
             $nickname_change? $query[] = 'nickname_change': null;
             $discriminator_change? $query[] = 'discriminator_change': null;
 
-
+            if (count($query) === 1) {
+                return;
+            }
             $activeLog = LogFinder::findEventLog($new->guild_id, $query);
             IF (!$activeLog) {
                 return;
@@ -145,12 +147,25 @@ class GuildEvents
                     'icon_url' => $new->user->avatar
                     ];
             }
+            $roleList = "";
+            if ($added || $removed) {
+                if ($added) {
+                    foreach ($newRoles as $role) {
+                        $roleList .= "<@&$role> ";
+                    }
+                } else {
+                    foreach ($removedRoles as $role) {
+                        $roleList .= "<@&$role> ";
+                    }
+                }
+
+            }
             $checks = [
                 'added' => [
                     $added => [
                         [
                             'name' => 'Role Added',
-                            'value' => "<@&$newRoles>"
+                            'value' => $roleList
                         ]
                     ]
                 ],
@@ -158,7 +173,7 @@ class GuildEvents
                     $removed => [
                         [
                             'name' => 'Role Removed',
-                            'value' => "<@&$removedRoles>"
+                            'value' => $roleList
                         ]
                     ]],
                 'username' => [
@@ -206,7 +221,7 @@ class GuildEvents
 
         $discord->on("GUILD_MEMBER_REMOVE", function (Member $member, Discord $discord) {
             $activeLog = LogFinder::findEventLog($member->guild_id, ['member_remove']);
-            IF (!$activeLog) {
+            IF (!$activeLog || $member->id === $discord->id) {
                 return;
             }
             $context = ContextCreator::getInstance()->contextCreation(null, $discord, true);

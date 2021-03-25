@@ -139,7 +139,8 @@ class ServerLog
                 }
                 break;
             default:
-                dump($arg);
+                $failure['description'] = "I'm not sure how you got here. Ping me with @mj11jM#1111 and the command you ran so I can figure that out";
+                $message->channel->sendMessage('', false, $failure);
                 break;
 
         }

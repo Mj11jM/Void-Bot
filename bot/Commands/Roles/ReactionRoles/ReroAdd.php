@@ -5,6 +5,9 @@ namespace VoidBot\Commands\Roles\ReactionRoles;
 
 
 
+use Discord\Discord;
+use Discord\Parts\Channel\Message;
+use Illuminate\Database\Capsule\Manager;
 use VoidBot\MySQLInstance;
 use function Emoji\detect_emoji;
 
@@ -21,7 +24,7 @@ class ReroAdd
         return self::$instance;
     }
 
-    public function addReactionRole($message, $discord, $context) {
+    public function addReactionRole(Message $message, Discord $discord, $context) {
         //Get rid of the 'add' in the command arguments
         array_shift($context['args']['args']);
         //Group into groups of 2 to do emoji/role pairing
@@ -73,40 +76,21 @@ class ReroAdd
                         $messageProper->react($emote);
                     }
                 }
-                dump('Message History Message ID');
-                dump($reactedMessage->id);
-                dump("------------------------------------");
-                //Insert the entry into the DB
-                $reactionRoleDB = MySQLInstance::getInstance()->getDB()->voidbot->reactionRoles;
-                $currentGuildReRo = $reactionRoleDB->findOne([
-                   'guild_id' => (string) $context['guild']->id
-                ]);
-                if (is_null($currentGuildReRo)) {
-                    $reactionRoleDB->insertOne([
-                        'guild_id' => (string) $context['guild']->id,
-                        'reaction_sets' => [
-                            (string) $context['channel']->id => [
-                                (string) $reactedMessage->id => $reroList
-                            ]
-                        ]
-                    ]);
-                } elseif (isset($currentGuildReRo['reaction_sets'][$context['channel']->id][$reactedMessage->id])) {
-                    $embed = $context['embed']['type']['command_error'];
-                    $embed['description'] = "A reaction role entry has been found on this message. If you want to replace or change it, remove the entry first.";
-                    return $context['channel']->sendMessage('', false, $embed);
-                } elseif (isset($currentGuildReRo['reaction_sets'][$context['channel']->id])) {
+                foreach ($reroList as $list) {
                     try {
-
-                        $reactionRoleDB->updateOne([
-                            'guild_id' => (string) $context['guild']->id
-                        ], ['$set' => (object) ['reaction_sets' => [
-                            (string) $context['channel']->id => [
-                                (string) $reactedMessage->id => $reroList
-                            ]], ['upsert' => true]
-                        ]]);
-
-                    } catch (\Throwable $e) {
-                        dump($e);
+                        Manager::table('reaction_roles')->insert(
+                            [
+                                "guild_id" => $message->channel->guild->id,
+                                "message_id" => $reactedMessage->id,
+                                "emoji" => $list['emoji'],
+                                "role_id" => $list["role_id"]
+                            ]
+                        );
+                    } catch (\Exception $e) {
+                        $embed = $context['embed']['type']['command_error'];
+                        $embed['description'] = "There was an issue setting up the reaction role for {$list['emoji']}. Voidbot either doesn't have access to it, or there was error with the database. Please try again.";
+                        $context['channel']->sendMessage('', false, $embed);
+                        return;
                     }
 
                 }

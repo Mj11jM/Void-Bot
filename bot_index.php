@@ -3,6 +3,7 @@
 
 
 use Discord\Discord;
+use Discord\Parts\Channel\Message;
 use VoidBot\Functions\ContextCreator;
 use VoidBot\Functions\MessageHandler;
 use VoidBot\MySQLInstance;
@@ -28,7 +29,7 @@ $discord->on('ready', function ($discord) {
 
     $discord->updatePresence();
 
-    $discord->on('MESSAGE_CREATE', function ($message, $discord) {
+    $discord->on('MESSAGE_CREATE', function (Message $message, $discord) {
         if ($message->author->bot || $message->author->id === $discord->user->id) {
             return;
         }

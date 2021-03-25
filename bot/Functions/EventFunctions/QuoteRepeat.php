@@ -61,7 +61,7 @@ class QuoteRepeat
                 $imageCount = 0;
                 foreach ($message->attachments as $attach) {
                     $imageTypes = ['jpg', 'png', 'gif', 'jpeg'];
-                    //Explode at the period to pop the last item(file type) onto a vairable to check
+                    //Explode at the period to pop the last item(file type) onto a variable to check
                     $explodeURL = explode('.', $attach->url);
                     $filetype = array_pop($explodeURL);
                     if (in_array($filetype, $imageTypes) && $imageCount < 1) {
