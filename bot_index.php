@@ -23,14 +23,16 @@ $discord = new Discord([
 VoidBot\Discord::setInstance($discord);
 MySQLInstance::getInstance();
 
-$discord->on('ready', function ($discord) {
+$discord->on('ready', function (Discord $discord) {
     $guildCount =  count($discord->guilds);
     echo "{$discord->username} is now online in {$guildCount} guilds!" . PHP_EOL;
 
-    $discord->updatePresence();
+//    $discord->updatePresence();
+
+
 
     $discord->on('MESSAGE_CREATE', function (Message $message, $discord) {
-        if ($message->author->user->bot || $message->author->id === $discord->user->id) {
+        if ($message->author->user->bot || $message->author->bot || $message->author->id === $discord->user->id) {
             return;
         }
 
