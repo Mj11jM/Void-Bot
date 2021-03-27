@@ -73,7 +73,6 @@ class MessageEvents
                         'value'=> "$newMessage->content"
                     ]
                 ];
-                dump($logChannel->channel_id);
                 $discord->getChannel($logChannel->channel_id)->sendMessage('', false, $embed);
             }
         });
