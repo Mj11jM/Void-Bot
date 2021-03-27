@@ -50,7 +50,7 @@ class MessageEvents
             }
         });
         $discord->on('MESSAGE_UPDATE', function (Message $newMessage, Discord $discord, $oldMessage) {
-            if (is_null($oldMessage) || $newMessage->author->user->bot || $newMessage->author->bot  || (!empty($newMessage->embeds->toArray()) && empty($newMessage->content))) {
+            if (is_null($oldMessage) || $newMessage->author->user->bot || $newMessage->author->bot  || (!empty($newMessage->embeds->toArray()) && empty($newMessage->content)) || $newMessage->content === $oldMessage->content) {
                 return;
             }
             $activeLog = LogFinder::findEventLog($newMessage->author->guild_id, ['message_update']);
