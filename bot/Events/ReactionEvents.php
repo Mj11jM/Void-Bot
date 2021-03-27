@@ -39,7 +39,7 @@ class ReactionEvents
             }
             $emoji->channel->messages->fetch($emoji->message_id)->then(function (Message $message) use ($emoji, $discord) {
                 //Is the reaction the quote emote?
-                $reaction = $emoji->emoji->animated? "<a:{$emoji->emoji->name}:{$emoji->emoji->id}>": "<{$emoji->emoji->name}:{$emoji->emoji->id}>";
+                $reaction = $emoji->emoji->animated? "<a:{$emoji->emoji->name}:{$emoji->emoji->id}>": "<:{$emoji->emoji->name}:{$emoji->emoji->id}>";
                 if ($emoji->emoji->id === null) {
                     $reaction = $emoji->emoji->name;
                 }

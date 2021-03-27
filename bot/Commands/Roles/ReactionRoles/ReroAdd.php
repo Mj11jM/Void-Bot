@@ -5,6 +5,7 @@ namespace VoidBot\Commands\Roles\ReactionRoles;
 
 
 
+use Carbon\Carbon;
 use Discord\Discord;
 use Discord\Parts\Channel\Message;
 use Illuminate\Database\Capsule\Manager;
@@ -58,14 +59,27 @@ class ReroAdd
         }
 
         //Get the message just prior to the one activating this command
-         $message->channel->getMessageHistory(['before' => $message->id, 'limit' => 1])
-            ->then(function ($messageItem) use ($reroList, $context, $message) {
-                $reactedMessage = null;
-                //Iterate through the returned message(s) and get the item
-                foreach ($messageItem as $messageProper) {
-                    $reactedMessage = $messageProper;
+//         $message->channel->getMessageHistory(['before' => $message->id, 'limit' => 1])
+            $message->channel->sendMessage('intermediate message', false)
+            ->done(function (Message $messageItem) use ($reroList, $context, $message) {
+                $embed = [
+                    "color" => $context['color']['light_blue'],
+                    "author" => [
+                        "name" => "Reaction Roles!"
+                    ],
+                    "description" => '',
+                    "footer" => [
+                        'text' => Carbon::now()->toDateTimeString()
+                    ]
+                ];
                     //For the length of the reaction list add the emojis
                     foreach ($reroList as $setup) {
+//                        $embed['fields'][] = [
+//                            'name' => $setup['emoji'],
+//                            'value' => "<@&{$setup['role_id']}>",
+//                            'inline' => true
+//                        ];
+                        $embed['description'] .= "{$setup['emoji']} <@&{$setup['role_id']}>\n";
                         //Pre-set the emoji to manipulate it
                         $emote = $setup['emoji'];
                         //I need to remove the < and > from the emoji to apply it to the message
@@ -73,31 +87,26 @@ class ReroAdd
                             $emote = str_ireplace(['<', '>'], "", $setup['emoji']);
                         };
                         //React
-                        $messageProper->react($emote);
-                    }
-                }
-                foreach ($reroList as $list) {
-                    try {
-                        Manager::table('reaction_roles')->insert(
-                            [
-                                "guild_id" => $message->channel->guild->id,
-                                "message_id" => $reactedMessage->id,
-                                "emoji" => $list['emoji'],
-                                "role_id" => $list["role_id"]
-                            ]
-                        );
-                    } catch (\Exception $e) {
-                        $embed = $context['embed']['type']['command_error'];
-                        $embed['description'] = "There was an issue setting up the reaction role for {$list['emoji']}. Voidbot either doesn't have access to it, or there was error with the database. Please try again.";
-                        $context['channel']->sendMessage('', false, $embed);
-                        return;
+                        $messageItem->react($emote);
+
+                        try {
+                            Manager::table('reaction_roles')->insert(
+                                [
+                                    "guild_id" => $message->channel->guild->id,
+                                    "message_id" => $messageItem->id,
+                                    "emoji" => $setup['emoji'],
+                                    "role_id" => $setup["role_id"]
+                                ]
+                            );
+                        } catch (\Exception $e) {
+                            $embed = $context['embed']['type']['command_error'];
+                            $embed['description'] = "There was an issue setting up the reaction role for {$setup['emoji']}. Voidbot either doesn't have access to it, or there was error with the database. Please try again.";
+                            $context['channel']->sendMessage('', false, $embed);
+                            return;
+                        }
                     }
 
-                }
-                //If I made it this far, it worked. If I didn't.... well
-                $embed = $context['embed']['type']['command_success'];
-                $embed['description'] = "Reaction Role setup has been completed!";
-                $context['channel']->sendMessage('', false, $embed);
+                $message->channel->editMessage($messageItem, '', false, $embed);
             });
     }
 
