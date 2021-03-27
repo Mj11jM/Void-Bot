@@ -89,12 +89,17 @@ class ReroAdd
                         //React
                         $messageItem->react($emote);
 
+                        $emoji_id = [];
+                        $emoji_check = preg_match("/\d/", $setup["emoji"]);
+                        if (!$emoji_check) {
+                            $emoji_id[] = $setup["emoji"];
+                        }
                         try {
                             Manager::table('reaction_roles')->insert(
                                 [
                                     "guild_id" => $message->channel->guild->id,
                                     "message_id" => $messageItem->id,
-                                    "emoji" => $setup['emoji'],
+                                    "emoji" => $emoji_id[0],
                                     "role_id" => $setup["role_id"]
                                 ]
                             );

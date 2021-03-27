@@ -39,10 +39,7 @@ class ReactionEvents
             }
             $emoji->channel->messages->fetch($emoji->message_id)->then(function (Message $message) use ($emoji, $discord) {
                 //Is the reaction the quote emote?
-                $reaction = $emoji->emoji->animated? "<a:{$emoji->emoji->name}:{$emoji->emoji->id}>": "<:{$emoji->emoji->name}:{$emoji->emoji->id}>";
-                if ($emoji->emoji->id === null) {
-                    $reaction = $emoji->emoji->name;
-                }
+                $reaction = $emoji->emoji->id? $emoji->emoji->id: $emoji->emoji->name;
                 $activeRero = DB::table('reaction_roles')->where([['message_id', '=', $message->id], ['emoji', '=', $reaction]])->first();
                 if ($emoji->emoji->name === "🔁" && empty($activeRero)) {
                     QuoteRepeat::repeatMessage($emoji, $message);
@@ -61,10 +58,7 @@ class ReactionEvents
             if($reaction->user->bot){
                 return;
             }
-            $emoji = $reaction->emoji->animated? "<a:{$reaction->emoji->name}:{$reaction->emoji->id}>": "<{$reaction->emoji->name}:{$reaction->emoji->id}>";
-            if ($reaction->emoji->id === null) {
-                $emoji = $reaction->emoji->name;
-            }
+            $emoji = $reaction->emoji->id? $reaction->emoji->id: $reaction->emoji->name;
             $activeRero = DB::table('reaction_roles')->where([['message_id', '=', $reaction->message_id], ['emoji', '=', $emoji]])->first();
             if (!$activeRero) {
                 return;
