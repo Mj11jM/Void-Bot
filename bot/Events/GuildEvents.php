@@ -93,8 +93,10 @@ class GuildEvents
             }
         });
 
-        $discord->on("GUILD_MEMBER_UPDATE", function (Member $new, Discord $discord, Member $old) {
-
+        $discord->on("GUILD_MEMBER_UPDATE", function (Member $new, Discord $discord, $old) {
+            if(!($old instanceof Member)) {
+                return;
+            }
 
             $oldRole = $old->roles->toArray();
             $newRole = $new->roles->toArray();
@@ -231,20 +233,24 @@ class GuildEvents
                 $embed['author']['icon_url'] = $member->user->avatar;
 
                 $createdDate = new Carbon($member->user->createdTimestamp());
-                $joinedAt = new Carbon($member->joined_at);
+//                $joinedAt = $member->joined_at? $member->joined_at: "Unknown";
                 $embed['fields'] = [
                     0 => [
                         'name' => "Account Created",
                         'value' => $createdDate->isoFormat('MMMM Do YYYY, h:mm:ss a'),
                         'inline' => true
                     ],
+//                    1 => [
+//                        'name' => "Time Joined",
+//                        'value' => $joinedAt,
+//                        'inline' => true
+//                    ],
                     1 => [
-                        'name' => "Time Since Joined",
-                        'value' => $joinedAt->diffForHumans(Carbon::now()),
-                        'inline' => true
+                        'name' => "User ID",
+                        'value' => "$member->id",
+                        'inline' => false
                     ]
                 ];
-                dump($embed);
                 $discord->getChannel($logChannel->channel_id)->sendMessage('', false, $embed);
             }
         });
